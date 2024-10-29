@@ -101,7 +101,7 @@ static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, G
     }
 }
 
-GstCaps *Image2rtsp::gst_caps_new_from_image(const sensor_msgs::msg::Image::SharedPtr &msg){
+GstCaps *Image2rtsp::gst_caps_new_from_image(const sensor_msgs::msg::Image::ConstSharedPtr & msg){
     // http://gstreamer.freedesktop.org/data/doc/gstreamer/head/pwg/html/section-types-definitions.html
     static const std::map<std::string, std::string> known_formats = {
         {sensor_msgs::image_encodings::RGB8, "RGB"},
@@ -154,7 +154,7 @@ static gboolean session_cleanup(Image2rtsp *node, rclcpp::Logger logger, gboolea
     return TRUE;
 }
 
-void Image2rtsp::topic_callback(const sensor_msgs::msg::Image::SharedPtr msg){
+void Image2rtsp::topic_callback(const sensor_msgs::msg::Image::ConstSharedPtr & msg){
     GstBuffer *buf;
     GstCaps *caps; // image properties. see return of Image2rtsp::gst_caps_new_from_image
     char *gst_type, *gst_format = (char *)"";

@@ -3,6 +3,7 @@
 
 #include <gst/gst.h>
 #include <gst/rtsp-server/rtsp-server.h>
+#include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <string>
 #include "sensor_msgs/msg/image.hpp"
@@ -32,10 +33,10 @@ private:
 
     void video_mainloop_start();
     void rtsp_server_add_url(const char *url, const char *sPipeline, GstElement **appsrc);
-    void topic_callback(const sensor_msgs::msg::Image::SharedPtr msg);
+    void topic_callback(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
     GstRTSPServer *rtsp_server_create(const string &port, const bool local_only);
-    GstCaps *gst_caps_new_from_image(const sensor_msgs::msg::Image::SharedPtr &msg);
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
+    GstCaps *gst_caps_new_from_image(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
+    image_transport::Subscriber image_subscription_;
 };
 
 static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, GstElement **appsrc);

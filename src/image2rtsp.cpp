@@ -10,7 +10,6 @@ using std::placeholders::_1;
 Image2rtsp::Image2rtsp() : Node("image2rtsp"){
     // Declare and get the parameters
     this->declare_parameter("source", "v4l2src device=/dev/video0");
-    this->declare_parameter("topic", "/color/image_raw");
     this->declare_parameter("mountpoint", "/back");
     this->declare_parameter("bitrate", "500");
     this->declare_parameter("framerate", "30");
@@ -21,7 +20,6 @@ Image2rtsp::Image2rtsp() : Node("image2rtsp"){
     this->declare_parameter("camera", false);
 
     source = this->get_parameter("source").as_string();
-    topic = this->get_parameter("topic").as_string();
     mountpoint = this->get_parameter("mountpoint").as_string();
     bitrate = this->get_parameter("bitrate").as_string();
     framerate = this->get_parameter("framerate").as_string();
@@ -31,8 +29,20 @@ Image2rtsp::Image2rtsp() : Node("image2rtsp"){
     local_only = this->get_parameter("local_only").as_bool();
     camera = this->get_parameter("camera").as_bool();
 
-    // Start the subscription
-    subscription_ = this->create_subscription<sensor_msgs::msg::Image>(topic, 10, std::bind(&Image2rtsp::topic_callback, this, _1));
+    // TransportHints does not actually declare the parameter
+    this->declare_parameter<std::string>("image_transport", "raw");
+    image_transport::TransportHints hints(this);
+
+    // For compressed topics to remap appropriately, we need to pass a
+    // fully expanded and remapped topic name to image_transport
+    auto node_base = this->get_node_base_interface();
+    std::string topic = node_base->resolve_topic_or_service_name("image_raw", false);
+
+    image_subscription_ = image_transport::create_subscription(
+    this, topic, std::bind(
+      &Image2rtsp::topic_callback, this, std::placeholders::_1),
+    hints.getTransport());
+
 
     // Start the RTSP server
     video_mainloop_start();

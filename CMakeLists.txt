@@ -20,6 +20,8 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(image_transport REQUIRED)
+
 pkg_check_modules(GST REQUIRED 
   gstreamer-1.0
   gstreamer-app-1.0
@@ -28,7 +30,10 @@ pkg_check_modules(GST REQUIRED
 file(GLOB SOURCES src/video.cpp)
 
 add_executable(image2rtsp src/image2rtsp.cpp ${SOURCES})
-ament_target_dependencies(image2rtsp rclcpp sensor_msgs)
+ament_target_dependencies(image2rtsp 
+  rclcpp 
+  sensor_msgs
+  image_transport)
 
 include_directories(
   ${GST_INCLUDE_DIRS}
